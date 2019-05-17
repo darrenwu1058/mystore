@@ -1,6 +1,10 @@
 
+import uuid
+
 from django.contrib.auth.models import User
 from django.db import models
+
+from django_fsm import FSMField, transition
 
 # Create your models here.
 
@@ -34,7 +38,30 @@ class Order(models.Model):
     info = models.OneToOneField(OrderInfo, on_delete=models.CASCADE, primary_key=True, verbose_name='訂購資訊')
     total = models.IntegerField(default=0, verbose_name='總價')
     user = models.ForeignKey(User, verbose_name='訂購使用者', null=True, on_delete=models.SET_NULL)
+    token = models.UUIDField(db_index=True, default=uuid.uuid4)
+    is_paid = models.BooleanField(default=False)
+    payment_method = models.CharField(max_length=255, default='')
+    state = FSMField(default='order_placed')
 
+    @transition(field=state, source='order_placed', target='paid')
+    def make_payment(self):
+        self.is_paid = True
+
+    @transition(field=state, source='paid', target='shipping')
+    def ship(self):
+        pass
+
+    @transition(field=state, source='shipping', target='shipped')
+    def deliver(self):
+        pass
+
+    @transition(field=state, source='shipped', target='good_returned')
+    def return_good(self):
+        pass
+
+    @transition(field=state, source=['order_placed', 'paid'], target='order_cancelled')
+    def cancel_order(self):
+        pass
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)

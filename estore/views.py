@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import Group, User
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import generic
 
@@ -12,12 +12,40 @@ from .models import Order, Product
 
 # Create your views here.
 
-class CartDetailFromRequest(generic.DetailView):
+class CartDetailMixin(object):
     def get_object(self):
         return self.request.cart
 
-class OrderDetail(generic.DetailView):
-    model = Order
+class CartDetailFromRequest(CartDetailMixin, generic.DetailView):
+    pass
+
+
+class CartDelete(CartDetailMixin, generic.DeleteView):
+    def get_success_url(self):
+        messages.warning(self.request, '已清空購物車')
+        return reverse('cart_detail')
+
+    def get(self, request, *args, **kwargs):
+        return redirect('cart_detail')
+
+
+class OrderDetailMixin(object):
+    def get_object(self):
+        return get_object_or_404(self.request.user.order_set, token=self.kwargs.get('token'))
+
+class OrderDetail(OrderDetailMixin, generic.DetailView):
+    pass
+
+class OrderPayWithCreditCard(OrderDetailMixin, generic.DetailView):
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+
+        self.object.payment_method = 'credit_card'
+        self.object.make_payment()
+        self.object.save()
+
+        return redirect('order_detail', token=self.object.token)
 
 class OrderCreateCartCheckout(LoginRequiredMixin, generic.CreateView):
     model = Order
@@ -60,7 +88,7 @@ class OrderCreateCartCheckout(LoginRequiredMixin, generic.CreateView):
 
     def get_success_url(self):
         messages.success(self.request, '訂單已生成')
-        return reverse('order_detail', kwargs={'pk': self.object.pk})
+        return reverse('order_detail', kwargs={'token': self.object.token})
 
 class ProductList(PermissionRequiredMixin, generic.ListView):
     model = Product

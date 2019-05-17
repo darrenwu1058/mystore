@@ -11,6 +11,7 @@ urlpatterns = [
 
     path('cart/', views.CartDetailFromRequest.as_view(), name='cart_detail'),
     path('cart/checkout', views.OrderCreateCartCheckout.as_view(), name='cart_checkout'),
+    path('cart/clear', views.CartDelete.as_view(), name='cart_delete'),
 
     path('dashboard/products/', views.ProductList.as_view(template_name='estore/dashboard_product_list.html', permission_required='estore.change_product'), name='dashboard_product_list'),
     path('dashboard/products/create', views.ProductCreate.as_view(), name='dashboard_product_create'),
@@ -20,7 +21,8 @@ urlpatterns = [
     path('dashboard/users/<int:pk>/addtostaff', views.UserAddToStaff.as_view(), name='dashboard_user_addtostaff'),
     path('dashboard/users/<int:pk>/removefromstaff', views.UserRemoveFromStaff.as_view(), name='dashboard_user_removefromstaff'),
 
-    path('order/<int:pk>/', views.OrderDetail.as_view(), name='order_detail'),
+    path('order/<uuid:token>/', views.OrderDetail.as_view(), name='order_detail'),
+    path('order/<uuid:token>/pay_with_credit_card', views.OrderPayWithCreditCard.as_view(), name='order_pay_with_credit_card'),
 ]
 
 if settings.DEBUG:
