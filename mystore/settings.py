@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import django_heroku
 import os
 
+from django.urls import reverse_lazy
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -33,6 +36,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'estore',
+    'spgateway',
     'bootstrap4',
     'fontawesome',
     'django.contrib.admin',
@@ -45,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'spgateway.middleware.SpgatewaySameSiteCookieMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -132,6 +137,18 @@ LOGIN_URL = '/login/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+SPGATEWAY_PROFILE = {
+    'MS16248581': {
+        'MerchantID': 'MS16248581',
+        'HashKey': 'dOFKcliSV8p2jgMZAalpGJXSmkbYx00e',
+        'HashIV': 'rPSfmTJYFxOnqDIO',
+        'ReturnURL': reverse_lazy('spgateway_NotifyView'),
+        'NotifyURL': '',
+    }
+}
+SPGATEWAY_MERCHANTID = 'MS16248581'
+SPGATEWAY_ORDERMODEL = 'estore.Order'
 
 if DEBUG:
     INSTALLED_APPS += ('naomi',)
