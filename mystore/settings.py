@@ -27,7 +27,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'd-q&@%oab++9=csw0fbdqfd$(-)xbn^awecbkg0%cw@&v2ub(a'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -148,10 +148,10 @@ SPGATEWAY_PROFILE = {
 SPGATEWAY_MERCHANTID = os.environ.get('SPGATEWAY_MERCHANT_ID', '')
 SPGATEWAY_ORDERMODEL = 'estore.Order'
 
-if DEBUG:
-    INSTALLED_APPS += ('naomi',)
-    EMAIL_BACKEND = 'naomi.mail.backends.naomi.NaomiBackend'
-    EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'mail')
+#if DEBUG:
+#    INSTALLED_APPS += ('naomi',)
+#    EMAIL_BACKEND = 'naomi.mail.backends.naomi.NaomiBackend'
+#    EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'mail')
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
