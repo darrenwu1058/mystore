@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-Hant'
 
 TIME_ZONE = 'UTC'
 
@@ -128,10 +128,15 @@ LOGIN_REDIRECT_URL = '/'
 
 LOGIN_URL = '/login/'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+if DEBUG:
+    INSTALLED_APPS += ('naomi',)
+    EMAIL_BACKEND = 'naomi.mail.backends.naomi.NaomiBackend'
+    EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'mail')
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())

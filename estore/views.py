@@ -8,7 +8,8 @@ from django.views import generic
 
 from django_fsm import TransitionNotAllowed
 
-from .forms import OrderInfoForm
+from .forms import OrderInfoForm, EstoreUserCreationForm
+from .helpers import send_order_mail
 from .models import Cart_Items, Order, Product
 
 # Create your views here.
@@ -168,6 +169,13 @@ class OrderCreateCartCheckout(LoginRequiredMixin, generic.CreateView):
 
         self.request.cart.cart_items_set.all().delete()
 
+        send_order_mail(
+            from_email=None,
+            recipient_list=(self.request.user.email,),
+            request=self.request,
+            order=self.object,
+        )
+
         return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form, **kwargs):
@@ -251,6 +259,14 @@ class UserAddToStaff(PermissionRequiredMixin, generic.UpdateView):
             messages.success(self.request, '已變更使用者身份為管理者')
         return reverse('dashboard_user_list')
 
+
+class UserCreate(generic.CreateView):
+    model = User
+    form_class = EstoreUserCreationForm
+
+    def get_success_url(self):
+        messages.success(self.request, '帳戶已創立')
+        return reverse('login')
 
 class UserRemoveFromStaff(PermissionRequiredMixin, generic.UpdateView):
     permission_required = 'auth.change_user'
